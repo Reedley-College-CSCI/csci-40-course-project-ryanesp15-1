@@ -1,13 +1,15 @@
 // CSCI-40 Final Project
-// Author: [Your Name Here]
+// Author: [Ryan Esparza]
 
 /* 
- * Description:
+ * Description:This code allows simple data collection on pitchers in the sport baseball.
  *
 */
 
 #include <iostream>
 
 int main() {
+
+    cout << "test";
     return 0;
 }
