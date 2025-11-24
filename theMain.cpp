@@ -10,6 +10,9 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <limits>
+#include <cctype>
 
 
 using namespace std;
@@ -25,10 +28,21 @@ struct Pitch {
 
 
 void displayMenu();
+void characterKey();
 
+
+
+/*
+* Export pitch function. 
+* needing the first parameter to call to te data type pitch s a pass by ref. 
+* need to set parameters both parameters as pass by ref.
+* need to declare as const so no change in data
+* needing 2nd param fr filename
+*/
+void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename);
 
 int main() {
-
+    
     //created vector to store pitches since we will be exporting them.
     //vector will be managing struct pitch. 
     //intitializing filename pitch_log as well, this will be exported.
@@ -69,19 +83,13 @@ int main() {
             break;
         case 5:
             cout << "Saving and exiting" << endl;
-            //function will export and will be added once created.
+            pitchesToFile(pitchLog, filename);
             break;
         default:
             cout << "Invalid choice. Please select an option 1-5." << endl;
         }
     }
-
-
-
-
-
-
-
+    
     characterKey();
     return 0;
 }
@@ -108,12 +116,9 @@ void characterKey() {
     cout << "|           MA (Middle Away), MM (Middle Middle), MI (Middle In)|" << endl;
     cout << "|           LA (Low Away), LM (Low Middle), LI (Low In)         |" << endl;
     cout << "|                                                               |" << endl;
-    cout << "| Results: S (Strike), B (Ball), F (Foul, H (Hit), O (Out)      |" << endl;
+    cout << "| Results: S (Strike), B (Ball), F (Foul), H (Hit), O (Out)     |" << endl;
     cout << "-----------------------------------------------------------------" << endl;
 }
-
-
-
 
 
 //display menu will allow users to select from
@@ -133,3 +138,26 @@ void displayMenu() {
 }
 
 
+/*Export pitch function
+* needing ofstream to open the file
+* use if statement for operation and for error message
+* needing for loop that exports all variables for pitch
+* need output statments for success or fail of export
+*/
+void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename) {
+    ofstream outFile(filename);
+
+    if (outFile.is_open()) {
+        for (const Pitch& pitch : pitchLog) {
+            outFile << pitch.type << " "
+                << pitch.location << " "
+                << pitch.result << " "
+                << pitch.speed << endl;
+        }
+        outFile.close();
+        cout << "Success! Saved " << pitchLog.size() << " pitches to " << filename << endl;
+    }
+    else {
+        cout << "ERROR! Unable to save pitches to " << filename << endl;
+    }
+}
