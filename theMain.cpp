@@ -32,6 +32,13 @@ void characterKey();
 
 
 
+
+/*loading pitches from file function
+needing same things as pitchesFromFile
+*/
+void pitchesFromFile(vector<Pitch>& pitchLog, const string& filename);
+
+
 /*
 * Export pitch function. 
 * needing the first parameter to call to te data type pitch s a pass by ref. 
@@ -49,6 +56,9 @@ int main() {
     vector<Pitch> pitchLog;
     string filename = "pitch_log.txt";
 
+
+
+    pitchesFromFile(pitchLog, filename);
 
     //creating the option menu for options on display menu initializing variable userChoice
     int userChoice = 0;
@@ -136,6 +146,38 @@ void displayMenu() {
         cout << "5. Save and Exit" << endl;
         cout << "Please select an option 1-5: " << endl;
 }
+
+
+/*loading pitches from file function
+needing to bring file in and have outputs if no data present/if data present. 
+need infile to import data to speed location result and type.
+declare variable that stores pitches imported
+*/
+void pitchesFromFile(vector<Pitch>& pitchLog, const string& filename) {
+    ifstream inFile(filename);
+    int pitchesLoaded = 0;
+
+    if (inFile.is_open()) {
+        Pitch pitch;
+
+        while (inFile >> pitch.type
+            >> pitch.location
+            >> pitch.result
+            >> pitch.speed) {
+            pitchLog.push_back(pitch);
+            pitchesLoaded++;
+        }
+        inFile.close();
+        cout << "Success! Loaded " << pitchesLoaded << " pitches from " << filename << endl;
+    } else {
+        cout << "No log found, restarting program." << endl;
+    }
+}
+
+
+
+
+
 
 
 /*Export pitch function
