@@ -27,10 +27,12 @@ struct Pitch {
 };
 
 
+//displays
 void displayMenu();
 void characterKey();
 
-
+//add pitch feature. No const vect since data will change
+void addNewPitch(vector<Pitch>& pitchlog);
 
 
 /*loading pitches from file function
@@ -77,7 +79,7 @@ int main() {
         switch (userChoice) {
         case 1:
             cout << "Calling function addNewPitch" << endl;
-            //will place function once created
+            addNewPitch(pitchLog);
             break;
         case 2:
             cout << "Calling function viewPitches" << endl;
@@ -202,4 +204,112 @@ void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename) {
     else {
         cout << "ERROR! Unable to save pitches to " << filename << endl;
     }
+}
+
+
+
+/*addNewPitch function
+* need input loop for adding new pitches and a validation input feature.
+* need character X to allow user to quit.
+* Need search to validate user inputs to valid inputs
+* convert character inputs to uppercase. 
+* variable for the actual newpitch being added.
+*/
+void addNewPitch(vector<Pitch>& pitchLog) {
+    string input;
+
+
+    //declaring const string vector for validation of input
+    const vector<string> validPitchTypes = { "FB", "CH", "2S", "CC" };
+    const vector<string> validLocation = { "HA", "HM", "HI", "MA", "MM", "MI", "LA", "LM", "LI" };
+    const vector <string> validResult = { "S", "B", "F", "H", "O" };
+
+    cout << "ADDING NEW PITCH: " << endl;
+
+
+    //needing main while loop, use sentinel value X for user to quit, have character key displayed in THISSS loop.
+    while (true) {
+        Pitch newPitch;
+
+        characterKey();
+
+        cout << "Enter Pitch Type (Enter 'X' to quit): ";
+        cin >> input;
+
+        if (input == "X" || input == "x") {
+            cout << "Returning to main menu..." << endl;
+            break;
+        }
+
+        //create do-while loops for each variable member of the class pitch. 
+        // -Needing the code to convert char to uppercase.
+        // -Needing search method to validate input to characters.
+        // -total of 4 do-while loops, should be pretty much same
+
+
+        //pitch type do while
+        do {
+            //need to convert characters to uppercase for cleanliness
+            for (char& c : input) c = toupper(c);
+
+            if (find(validPitchTypes.begin(), validPitchTypes.end(), input) != validPitchTypes.end()) {
+                newPitch.type = input;
+                break;
+            }
+            cout << "Invalid pitch type " << input << ". Please enter FB, 2S, CH, or CC: ";
+            cin >> input;
+
+            if (input == "X" || input == "x") { return; }
+
+        } while (true);
+        //pitch location do-while 
+        cout << "Enter Pitch Location (ex. HA, MM, LI, etc.): ";
+        cin >> input;
+        do {
+            for (char& c : input) c = toupper(c);
+
+            if (find(validLocation.begin(), validLocation.end(), input) != validLocation.end()) {
+                newPitch.location = input;
+                break;
+            }
+            cout << "Invalid location " << input << ". Please enter a 2 letter location code (ex. MA, LI): ";
+            cin >> input;
+            if (input == "X" || input == "x") { return;}
+
+        } while (true);
+
+        //pitch result do-while
+        cout << "Enter Pitch Result (S, B, F, H, O): ";
+        cin >> input;
+        do {
+            for (char& c : input) c = toupper(c);
+
+            if (find(validResult.begin(), validResult.end(), input) != validResult.end()) {
+                newPitch.result = input;
+                break;
+            }
+
+            cout << "Invalid result " << input << ". Please enter result code using (S, B, F, H, O): ";
+            cin >> input;
+            if (input == "X" || input == "x") { return;}
+
+        } while (true);
+
+        //pitch speed do-while
+        cout << "Enter Speed of Pitch (mph): ";
+        int tempSpeed;
+        if (!(cin >> tempSpeed) || tempSpeed <= 0) {
+            cin.clear();
+            cout << "Invalid speed entered. Pitch deleted, restarting process..." << endl;
+            continue;
+        }
+        newPitch.speed = tempSpeed;
+        cin.ignore();
+
+        //adding the pitch to our vector. Use output statement to verify successful output
+        pitchLog.push_back(newPitch);
+        cout << "Success! Pitch tracked: " << newPitch.type << " at " << newPitch.speed << "mph." << endl;
+    }
+
+
 }
