@@ -34,6 +34,8 @@ void characterKey();
 //add pitch feature. No const vect since data will change
 void addNewPitch(vector<Pitch>& pitchlog);
 
+//view pitches feature. For function look at Vincent in class display
+void viewPitches(const vector<Pitch>& pitchLog);
 
 /*loading pitches from file function
 needing same things as pitchesFromFile
@@ -310,6 +312,22 @@ void addNewPitch(vector<Pitch>& pitchLog) {
         pitchLog.push_back(newPitch);
         cout << "Success! Pitch tracked: " << newPitch.type << " at " << newPitch.speed << "mph." << endl;
     }
+
+
+}
+
+//view pitches fucntion.
+/*
+* need to have a setw feature for display
+* need to design display 
+* need if statement to check if their is pitches to view, use statement to output error msg.
+* 
+*/
+void viewPitches(const vector<Pitch>& pitchLog) {
+
+    cout << "=================================================================" << endl;
+    cout << "                        FULL PITCH LOG: " << endl;
+    cout << "=================================================================" << endl;
 
 
 }
