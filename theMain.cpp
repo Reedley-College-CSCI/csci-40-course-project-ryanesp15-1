@@ -26,6 +26,10 @@ struct Pitch {
     int speed;
 };
 
+//declaring const string vector for validation of input(moved them to global why not)
+const vector<string> validPitchTypes = { "FB", "CH", "2S", "CC" };
+const vector<string> validLocation = { "HA", "HM", "HI", "MA", "MM", "MI", "LA", "LM", "LI" };
+const vector <string> validResult = { "S", "B", "F", "H", "O" };
 
 //displays
 void displayMenu();
@@ -36,6 +40,9 @@ void addNewPitch(vector<Pitch>& pitchlog);
 
 //view pitches feature. For function look at Vincent in class display
 void viewPitches(const vector<Pitch>& pitchLog);
+
+//Calculating the stats function
+void calculateStats(const vector<Pitch>& pitchLog);
 
 /*loading pitches from file function
 needing same things as pitchesFromFile
@@ -85,11 +92,11 @@ int main() {
             break;
         case 2:
             cout << "Calling function viewPitches" << endl;
-            //will place function once created
+            viewPitches(pitchLog);
             break;
         case 3:
             cout << "Calling function calculateStats" << endl;
-            //will place function once created
+            calculateStats(pitchLog);
             break;
         case 4:
             cout << "calling function exportData" << endl;
@@ -104,6 +111,7 @@ int main() {
         }
     }
     
+    pitchesToFile(pitchLog, filename);
     characterKey();
     return 0;
 }
@@ -220,19 +228,12 @@ void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename) {
 void addNewPitch(vector<Pitch>& pitchLog) {
     string input;
 
-
-    //declaring const string vector for validation of input
-    const vector<string> validPitchTypes = { "FB", "CH", "2S", "CC" };
-    const vector<string> validLocation = { "HA", "HM", "HI", "MA", "MM", "MI", "LA", "LM", "LI" };
-    const vector <string> validResult = { "S", "B", "F", "H", "O" };
-
     cout << "ADDING NEW PITCH: " << endl;
 
 
     //needing main while loop, use sentinel value X for user to quit, have character key displayed in THISSS loop.
     while (true) {
         Pitch newPitch;
-
         characterKey();
 
         cout << "Enter Pitch Type (Enter 'X' to quit): ";
@@ -247,7 +248,6 @@ void addNewPitch(vector<Pitch>& pitchLog) {
         // -Needing the code to convert char to uppercase.
         // -Needing search method to validate input to characters.
         // -total of 4 do-while loops, should be pretty much same
-
 
         //pitch type do while
         do {
@@ -324,10 +324,97 @@ void addNewPitch(vector<Pitch>& pitchLog) {
 * 
 */
 void viewPitches(const vector<Pitch>& pitchLog) {
+    if (pitchLog.empty()) {
+        cout << "No pitches recorded. Selection option number 1 to add data." << endl;
+        return;
+    }
 
     cout << "=================================================================" << endl;
     cout << "                        FULL PITCH LOG: " << endl;
     cout << "=================================================================" << endl;
 
+    cout << setw(8) << left << "INDEX"
+        << setw(15) << left << "PITCH TYPE"
+        << setw(15) << left << "LOCATION"
+        << setw(15) << left << "RESULT"
+        << setw(10) << right << "SPEED (MPH)";
+    cout << "-----------------------------------------------------------------" << endl;
 
+    for (int i = 0; i < pitchLog.size(); ++i) {
+        //call to pitch log and output stats
+        const Pitch& p = pitchLog[i];
+        cout << setw(8) << left << (i + 1)
+            << setw(15) << left << p.type
+            << setw(15) << left << p.location
+            << setw(15) << left << p.result
+            << setw(10) << right << p.speed << endl;
+    }
+    cout << "=================================================================" << endl;
+
+}
+
+
+void calcualteStats(const vector<Pitch>& pitchLog) {
+    //need if statement to ensure data is in pitchLog.
+    if (pitchLog.empty()) {
+        cout << "Cannot calculate statistics. Pitch log is empty." << endl;
+        return;
+    }
+
+    string pitchType;
+
+    //do loop needs character toupper code
+    
+    do {
+        cout << "-----STATS-----" << endl;
+        cout << "Enter Pitch Type you would like to see statistics for (FB, 2S, CH, CC) or 'X' to return:" << endl;
+        cin >> pitchType;
+        if (pitchType == "X" || pitchType == "x") { return; }
+        for (char& c : pitchType) c = toupper(c);
+
+        //need to compare user input with valid const declared globally
+        bool valid = false;
+        for (const string& validCode : validPitchTypes) {
+            if (pitchType == validCode) {
+                valid = true;
+                break;
+            }
+        }
+        
+        //if statement runs its else staement which has the search run. 
+        if (!valid) {
+            cout << " Invalid pitch type entered. Please try again." << endl;
+            continue;
+        }
+
+        //need to initialize variables that will store data/results of putches.
+        //total = all pitches thrown
+        int totalCount = 0;
+        int strikeCount = 0;
+        int ballCount = 0;
+        int foulCount = 0;
+        int hitCount = 0;
+        int outCount = 0;
+
+        //linear search needed
+        for (const Pitch& pitch : pitchLog) {
+            if (pitch.type == pitchType) {
+                totalCount++;
+
+                if (pitch.result == "S") strikeCount++;
+                else if (pitch.result == "B") ballCount++;
+                else if (pitch.result == "F") foulCount++;
+                else if (pitch.result == "H") hitCount++;
+                else if (pitch.result == "O") outCount++;
+            }
+        }
+
+        if (totalCount == 0) {
+            cout << " No pitch statistics for pitch type " << pitchType << " found in the log." << endl;
+            continue;
+        }
+
+
+
+    }
 }
