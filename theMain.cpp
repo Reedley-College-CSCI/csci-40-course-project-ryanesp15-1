@@ -13,6 +13,8 @@
 #include <fstream>
 #include <limits>
 #include <cctype>
+#include <algorithm> 
+#include <sstream>
 
 
 using namespace std;
@@ -44,6 +46,9 @@ void viewPitches(const vector<Pitch>& pitchLog);
 //Calculating the stats function
 void calculateStats(const vector<Pitch>& pitchLog);
 
+//Need sorting algorithm
+void sortPitchesBySpeed(vector<Pitch>& pitchLog);
+
 /*loading pitches from file function
 needing same things as pitchesFromFile
 */
@@ -58,6 +63,11 @@ void pitchesFromFile(vector<Pitch>& pitchLog, const string& filename);
 * needing 2nd param fr filename
 */
 void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename);
+
+
+//need export to txt file function
+void exportDataTXT(vector<Pitch>& pitchLog, const string& filename);
+
 
 int main() {
     
@@ -100,7 +110,7 @@ int main() {
             break;
         case 4:
             cout << "calling function exportData" << endl;
-            //will place function once created
+            exportDataTXT(pitchLog, "pitch_data_report.txt");
             break;
         case 5:
             cout << "Saving and exiting" << endl;
@@ -157,6 +167,8 @@ void displayMenu() {
         cout << "4. Export Data" << endl;
         cout << "5. Save and Exit" << endl;
         cout << "Please select an option 1-5: " << endl;
+        cout << "-------------------------------------------------------" << endl;
+        cout << "Please select an option: " << endl;
 }
 
 
@@ -239,7 +251,7 @@ void addNewPitch(vector<Pitch>& pitchLog) {
         cout << "Enter Pitch Type (Enter 'X' to quit): ";
         cin >> input;
 
-        if (input == "X" || input == "x") {
+        if (input.size() == 1 && (input[0] == 'X' || input[0] == 'x')) {
             cout << "Returning to main menu..." << endl;
             break;
         }
@@ -261,29 +273,35 @@ void addNewPitch(vector<Pitch>& pitchLog) {
             cout << "Invalid pitch type " << input << ". Please enter FB, 2S, CH, or CC: ";
             cin >> input;
 
-            if (input == "X" || input == "x") { return; }
+            if (input.size() == 1 && (input[0] == 'X' || input[0] == 'x')) return;
 
         } while (true);
         //pitch location do-while 
-        cout << "Enter Pitch Location (ex. HA, MM, LI, etc.): ";
-        cin >> input;
+        
         do {
+            cout << "Enter Pitch Location (ex. HA, MM, LI, etc.): ";
+            cin >> input;
+            if (input.size() == 1 && (input[0] == 'X' || input[0] == 'x')) return;
+
             for (char& c : input) c = toupper(c);
 
             if (find(validLocation.begin(), validLocation.end(), input) != validLocation.end()) {
                 newPitch.location = input;
                 break;
             }
+
             cout << "Invalid location " << input << ". Please enter a 2 letter location code (ex. MA, LI): ";
-            cin >> input;
-            if (input == "X" || input == "x") { return;}
+
 
         } while (true);
 
-        //pitch result do-while
-        cout << "Enter Pitch Result (S, B, F, H, O): ";
-        cin >> input;
+        
         do {
+            //pitch result do-while
+            cout << "Enter Pitch Result (S, B, F, H, O): ";
+            cin >> input;
+            if (input.size() == 1 && (input[0] == 'X' || input[0] == 'x')) return;
+
             for (char& c : input) c = toupper(c);
 
             if (find(validResult.begin(), validResult.end(), input) != validResult.end()) {
@@ -292,18 +310,23 @@ void addNewPitch(vector<Pitch>& pitchLog) {
             }
 
             cout << "Invalid result " << input << ". Please enter result code using (S, B, F, H, O): ";
-            cin >> input;
-            if (input == "X" || input == "x") { return;}
 
         } while (true);
 
         //pitch speed do-while
         cout << "Enter Speed of Pitch (mph): ";
         int tempSpeed;
+
         if (!(cin >> tempSpeed) || tempSpeed <= 0) {
             cin.clear();
-            cout << "Invalid speed entered. Pitch deleted, restarting process..." << endl;
+            string temp;
+            cin >> temp;
+            if (temp.size() == 1 && (temp[0] == 'x' || temp[0] == 'X')) return;
+
+            cin.clear();
+            cout << "Invalid speed entered!. Pitch discarded. Restarting user input..." << endl;
             continue;
+
         }
         newPitch.speed = tempSpeed;
         cin.ignore();
@@ -332,7 +355,6 @@ void viewPitches(const vector<Pitch>& pitchLog) {
     cout << "=================================================================" << endl;
     cout << "                        FULL PITCH LOG: " << endl;
     cout << "=================================================================" << endl;
-
     cout << setw(8) << left << "INDEX"
         << setw(15) << left << "PITCH TYPE"
         << setw(15) << left << "LOCATION"
@@ -354,10 +376,10 @@ void viewPitches(const vector<Pitch>& pitchLog) {
 }
 
 
-void calcualteStats(const vector<Pitch>& pitchLog) {
+void calculateStats(const vector<Pitch>& pitchLog) {
     //need if statement to ensure data is in pitchLog.
     if (pitchLog.empty()) {
-        cout << "Cannot calculate statistics. Pitch log is empty." << endl;
+        cout << "[ERROR] Cannot calculate statistics. Pitch log is empty." << endl;
         return;
     }
 
@@ -369,7 +391,7 @@ void calcualteStats(const vector<Pitch>& pitchLog) {
         cout << "-----STATS-----" << endl;
         cout << "Enter Pitch Type you would like to see statistics for (FB, 2S, CH, CC) or 'X' to return:" << endl;
         cin >> pitchType;
-        if (pitchType == "X" || pitchType == "x") { return; }
+        if (pitchType == "X" || pitchType == "x") return;
         for (char& c : pitchType) c = toupper(c);
 
         //need to compare user input with valid const declared globally
@@ -380,7 +402,7 @@ void calcualteStats(const vector<Pitch>& pitchLog) {
                 break;
             }
         }
-        
+
         //if statement runs its else staement which has the search run. 
         if (!valid) {
             cout << " Invalid pitch type entered. Please try again." << endl;
@@ -413,8 +435,78 @@ void calcualteStats(const vector<Pitch>& pitchLog) {
             cout << " No pitch statistics for pitch type " << pitchType << " found in the log." << endl;
             continue;
         }
+        //init varis that contain percentages of stats
+        double strikePercent = (static_cast<double>(strikeCount) / totalCount) * 100.0;
+        double ballPercent = (static_cast<double>(strikeCount) / totalCount) * 100.0;
+        double hitPercent = (static_cast<double>(strikeCount) / totalCount) * 100.0;
+
+        cout << "=======================================================" << endl;
+        cout << "Stats for Pitch Type: " << pitchType << endl;
+        cout << "=======================================================" << endl;
+        cout << "Total pitches Throwm: " << totalCount << endl;
+        cout << "-------------------------------------------------------" << endl;
+        cout << "Strikes (S): " << setw(5) << strikeCount << " (" << fixed << setprecision(1) << strikePercent << "%)" << endl;
+        cout << "Balls (B): " << setw(5) << ballCount << " )" << fixed << setprecision(1) << ballPercent << "%)" << endl;
+        cout << "Foul Balls (F): " << setw(5) << foulCount << endl;
+        cout << "Hits Allowed (H): " << setw(4) << hitCount << " (" << fixed << setprecision(1) << hitPercent << "%)" << endl;
+        cout << "Outs Recorded (O): " << setw(4) << outCount << endl;
+        cout << "=======================================================" << endl;
+
+    } while (true);
+}
 
 
-
+/* Sorting function
+-will implement the sorting function as a helpe function
+-need to look into buble sort
+*/
+void sortPitchesBySpeed(vector<Pitch>& pitchLog) {
+    if (pitchLog.empty()) {
+        return;
     }
+
+    int n = pitchLog.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - 1; ++j) {
+            if (pitchLog[j].speed < pitchLog[j + 1].speed) {
+                swap(pitchLog[j], pitchLog[j + 1]);
+            }
+        }
+    }
+
+}
+
+/* export to txt file function
+-need to look into delimeter and implementation for txt file
+- need error output statements if file is bad.
+*/
+
+void exportDataTXT(vector<Pitch>& pitchLog, const string& filename) {
+    if (pitchLog.empty()) {
+        cout << "[ERROR] Cannot export data. Pitch log is empty." << endl;
+        return;
+    }
+
+    sortPitchesBySpeed(pitchLog);
+    cout << "Pitch log sorted by speed (Fastest to SLowest)" << endl;
+
+    ofstream outFile(filename);
+
+    if (!outFile.is_open()) {
+        cout << "[ERROR] Could not open file " << filename << " for exporting." << endl;
+        return;
+    }
+
+    outFile << "Type\tLocation\tResult\tSpeed" << endl;
+
+    for (const Pitch& pitch : pitchLog) {
+        outFile << pitch.type << "\t"
+            << pitch.location << "\t"
+            << pitch.result << "\t"
+            << pitch.speed << endl;
+    }
+
+    outFile.close();
+    cout << "[SUCCESS] Exported " << pitchLog.size() << " pitches to " << filename << "." << endl;
+
 }
