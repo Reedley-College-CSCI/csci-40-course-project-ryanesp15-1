@@ -40,7 +40,6 @@ void calculateStats(const vector<Pitch>& pitchLog);
 void sortPitchesBySpeed(vector<Pitch>& pitchLog);
 void pitchesFromFile(vector<Pitch>& pitchLog, const string& filename);
 void pitchesToFile(const vector<Pitch>& pitchLog, const string& filename);
-
 void exportDataTXT(vector<Pitch>& pitchLog, const string& filename);
 
 int main() {
@@ -365,7 +364,7 @@ void calculateStats(const vector<Pitch>& pitchLog) {
         cout << "=======================================================" << endl;
         cout << "Stats for Pitch Type: " << pitchType << endl;
         cout << "=======================================================" << endl;
-        cout << "Total pitches Throwm: " << totalCount << endl;
+        cout << "Total pitches Thrown: " << totalCount << endl;
         cout << "-------------------------------------------------------" << endl;
         cout << "Strikes (S): " << setw(5) << strikeCount << " (" << fixed << setprecision(1) << strikePercent << "%)" << endl;
         cout << "Balls (B): " << setw(5) << ballCount << " (" << fixed << setprecision(1) << ballPercent << "%)" << endl;
