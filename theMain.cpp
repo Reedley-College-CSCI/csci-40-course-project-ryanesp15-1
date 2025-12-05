@@ -232,7 +232,8 @@ void addNewPitch(vector<Pitch>& pitchLog) {
                 break;
             }
 
-            cout << "Invalid result " << input << ". Please enter result code using (S, B, F, H, O): ";
+            cout << "Invalid result " << input << ". Please enter result code using (S, B, F, H, O): " << endl;
+            cout << " " << endl;
 
         } while (true);
 
